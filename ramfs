@@ -1,0 +1,22 @@
+#!/bin/sh
+set -eu
+
+# Creates the RamFS
+ramfs_create() {
+	local SIZE="$1"
+	local SIZE_SECTORS=$(($SIZE * 1024 * 1024/512))
+	
+	echo "*> Creating ${SIZE}}MB large RAM FS..."
+	local DISK=`hdiutil attach -nomount ram://${SIZE_SECTORS} | awk '{$1=$1};1'`
+	diskutil eraseDisk HFS+ "RamFS" "$DISK"
+	echo "*> Done."
+}
+
+# Validate input
+if test -z "$1"; then
+	echo "Syntax: $(basename $0) size_in_MB"
+	exit 1
+fi
+
+# Create the RamFS
+ramfs_create "$1"
